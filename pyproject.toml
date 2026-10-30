@@ -1,0 +1,21 @@
+[project]
+name = "kinase-open"
+version = "0.1.0"
+description = "JAK-family selectivity prediction from public ChEMBL data, with calibrated uncertainty"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy<2",
+    "torch==2.2.2",
+    "rdkit",
+    "pandas",
+    "scikit-learn",
+    "scipy",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

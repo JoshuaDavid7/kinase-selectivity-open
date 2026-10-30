@@ -1,0 +1,9 @@
+{
+  "raw_rows": 13680,
+  "dropped_no_smiles": 19,
+  "dropped_flagged": 38,
+  "dropped_censored": 3916,
+  "dropped_no_pchembl": 0,
+  "kept_measurements": 6698,
+  "unique_compounds": 3621
+}
