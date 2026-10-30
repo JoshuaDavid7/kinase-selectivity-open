@@ -1,0 +1,74 @@
+{
+  "n_compounds": 3621,
+  "labels_per_target": {
+    "JAK1": 2303,
+    "JAK2": 2356,
+    "JAK3": 1088,
+    "TYK2": 951
+  },
+  "compounds_by_label_count": {
+    "1": 1374,
+    "2": 1755,
+    "3": 154,
+    "4": 338
+  },
+  "complete_panel": 338,
+  "duplicate_pairs": {
+    "JAK1/JAK2": {
+      "paired": 1686,
+      "identical": 250,
+      "fraction": 0.1483,
+      "median_abs_difference": 0.27
+    },
+    "JAK1/JAK3": {
+      "paired": 442,
+      "identical": 77,
+      "fraction": 0.1742,
+      "median_abs_difference": 1.96
+    },
+    "JAK1/TYK2": {
+      "paired": 429,
+      "identical": 138,
+      "fraction": 0.3217,
+      "median_abs_difference": 1.01
+    },
+    "JAK2/JAK3": {
+      "paired": 517,
+      "identical": 76,
+      "fraction": 0.147,
+      "median_abs_difference": 0.96
+    },
+    "JAK2/TYK2": {
+      "paired": 648,
+      "identical": 164,
+      "fraction": 0.2531,
+      "median_abs_difference": 1.04
+    },
+    "JAK3/TYK2": {
+      "paired": 523,
+      "identical": 261,
+      "fraction": 0.499,
+      "median_abs_difference": 0.04
+    }
+  },
+  "variance_decomposition": {
+    "n_complete": 338,
+    "within_compound_variance": 0.6340513174926036,
+    "between_compound_variance": 0.5763464009734648,
+    "selectivity_fraction": 0.5238371717158671
+  },
+  "scaffolds": {
+    "unique": 1489,
+    "singletons": 970,
+    "largest_groups": [
+      113,
+      76,
+      59,
+      58,
+      50,
+      44,
+      39,
+      39
+    ]
+  }
+}
