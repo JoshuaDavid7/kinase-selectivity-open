@@ -127,6 +127,32 @@ baseline is outright better. What the neural model adds is the multitask structu
 representation for the uncertainty work below — not raw accuracy. Anyone reporting a GNN win at
 this scale without a tuned baseline beside it has probably not run one.
 
+### Does the winner survive replication?
+
+Picking an architecture on one seed is the standard way to publish a result that does not
+reproduce, so `scripts/replicate.py` trains all three across seeds and asks two separate
+questions: how far a number moves between seeds, and whether the *ranking* moves.
+
+Mean MAE across the four targets, scaffold split, 3-member ensembles:
+
+| Model | seed 1 | seed 2 | seed 3 | Mean | SD |
+|---|---|---|---|---|---|
+| hybrid | 0.6037 | 0.6078 | 0.6024 | **0.6046** | 0.0028 |
+| fp | 0.6332 | 0.6593 | 0.6685 | **0.6536** | 0.0183 |
+| graph | 0.6899 | 0.6724 | 0.6776 | **0.6800** | 0.0090 |
+
+The hybrid wins on every seed, and its margin over the fingerprint-only model
+(0.0490 MAE) is larger than the biggest seed-to-seed spread of either
+(0.0183). So the architecture choice here is a real finding rather than
+one draw dressed up as one.
+
+That is worth stating precisely because it did not have to come out this way. The script prints
+`INSIDE seed noise, not a finding` when the gap between the top two is smaller than their own
+variability, and on a smaller or noisier panel it would: the fingerprint model's seed SD
+(0.0183) is six times the hybrid's (0.0028), and a single-seed
+comparison between those two could easily have landed either way. The replication is the check.
+Here the check passes.
+
 ### Uncertainty: the ensemble spread is not a confidence interval
 
 At a nominal 90%:
