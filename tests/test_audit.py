@@ -12,7 +12,7 @@ from kinase_open.model import FingerprintEncoder, masked_mse
 from kinase_open.splits import scaffold_split
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from benchmark import four_way, json_safe, selectivity_report
+from benchmark import four_way, json_safe, selectivity_report, require_finite_predictions
 
 def test_prediction_uses_only_measured_competitors():
     y = np.array([[8., 7., np.nan, np.nan]])
@@ -65,6 +65,19 @@ def test_descriptor_scaling_ignores_test_and_preserves_morgan_bits():
     assert torch.equal(scaled[:, :MORGAN_BITS], x[:, :MORGAN_BITS])
     assert scaled[0, -1].item() == -1 and scaled[1, -1].item() == 1
     assert encoder.feature_mean[-1].item() == 15
+
+def test_constant_descriptor_uses_unit_scale_for_new_values():
+    x = torch.zeros(2, FP_DIM)
+    x[:, MORGAN_BITS:] = 3
+    encoder = FingerprintEncoder()
+    encoder.fit_descriptors(x)
+    new_value = torch.full((FP_DIM,), 5.)
+    assert torch.all(encoder.feature_scale[MORGAN_BITS:] == 1)
+    assert torch.all(((new_value - encoder.feature_mean) / encoder.feature_scale)[MORGAN_BITS:] == 2)
+
+def test_benchmark_rejects_incomplete_predictions_instead_of_shrinking_test_set():
+    with pytest.raises(ValueError, match='refusing partial scoring'):
+        require_finite_predictions({'broken model': np.array([[1., np.nan]])})
 
 def test_paired_interval_resamples_differences():
     y = np.zeros(12)

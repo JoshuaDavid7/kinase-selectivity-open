@@ -57,6 +57,11 @@ def json_safe(value):
 def write_json(path, value):
     Path(path).write_text(json.dumps(json_safe(value), indent=2, allow_nan=False) + "\n")
 
+def require_finite_predictions(arrays):
+    for name, values in arrays.items():
+        if not np.isfinite(values).all():
+            raise ValueError(f"nonfinite predictions in {name}; refusing partial scoring")
+
 def selectivity_report(y, pred, y_train):
     report = {"measured_subset": {}, "complete_panel": {}, "pairwise": {}}
     for complete, section in [(False, "measured_subset"), (True, "complete_panel")]:
@@ -145,6 +150,8 @@ def main():
             and cached_prov["config"]["seed"] == args.seed
             and cached_split["indices"] == {k: v.tolist() for k, v in parts.items()}
             and cached_prov["source_sha256"]["src/kinase_open/evaluate.py"] == digest(ROOT / "src/kinase_open/evaluate.py")
+            and cached_prov["source_sha256"]["src/kinase_open/featurize.py"] == digest(ROOT / "src/kinase_open/featurize.py")
+            and cached_prov["source_sha256"]["src/kinase_open/train.py"] == digest(ROOT / "src/kinase_open/train.py")
             and cached_frozen["predictions_sha256"] == digest(origin / "predictions.npz")
         )
         if not valid_cache:
@@ -158,6 +165,12 @@ def main():
         baselines_all = evaluate.classical_baselines(data.fps[train], data.y[train], data.fps[combined], seed=args.seed)
     baselines_val = {k: v[:len(val)] for k, v in baselines_all.items()}
     baselines_test = {k: v[len(val):] for k, v in baselines_all.items()}
+    require_finite_predictions({
+        "validation mean": pred_val.mu, "validation spread": pred_val.sigma,
+        "calibration mean": pred_cal.mu, "calibration spread": pred_cal.sigma,
+        "test mean": pred_test.mu, "test spread": pred_test.sigma,
+        **{f"baseline {k}": v for k, v in baselines_all.items()},
+    })
     selected = evaluate.select_baseline(data.y[val], baselines_val)
     calibrators = {}
     for t, name in enumerate(TARGETS):

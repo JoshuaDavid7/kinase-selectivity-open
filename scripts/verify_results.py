@@ -66,6 +66,16 @@ def verify_run(path):
             seen |= here
     train, val, cal, test = [parts[k] for k in ["train", "validation", "calibration", "test"]]
     preds = np.load(path / "predictions.npz", allow_pickle=False)
+    origin_name = frozen.get('baseline_predictions_reused_from')
+    if origin_name:
+        origin = path.parent / origin_name
+        source_frozen = json.loads((origin / 'frozen.json').read_text())
+        if digest(origin / 'predictions.npz') != source_frozen['predictions_sha256']:
+            raise AssertionError('cached baseline origin checksum mismatch')
+        with np.load(origin / 'predictions.npz', allow_pickle=False) as original:
+            for key in preds.files:
+                if key.startswith('baseline_') and not np.array_equal(preds[key], original[key], equal_nan=True):
+                    raise AssertionError(f'cached baseline predictions changed: {key}')
     baseline_val = {k.removeprefix("baseline_val_"): preds[k] for k in preds.files if k.startswith("baseline_val_")}
     selected = evaluate.select_baseline(y[val], baseline_val)
     same(selected, frozen["selected_baseline_by_validation"], "frozen selection")

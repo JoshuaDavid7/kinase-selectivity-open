@@ -92,7 +92,7 @@ class FingerprintEncoder(nn.Module):
             desc = train_fp[:, MORGAN_BITS:]
             self.feature_mean[MORGAN_BITS:] = desc.mean(dim=0)
             scale = desc.std(dim=0, unbiased=False)
-            self.feature_scale[MORGAN_BITS:] = scale.clamp(min=1e-6)
+            self.feature_scale[MORGAN_BITS:] = torch.where(scale > 1e-6, scale, torch.ones_like(scale))
 
 
 class MolecularNetwork(nn.Module):

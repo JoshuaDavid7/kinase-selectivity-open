@@ -54,6 +54,13 @@ This changes execution cost, not the comparator or study settings. Run times
 therefore include different amounts of reused work and are not a fair compute
 efficiency comparison between architectures.
 
+Additional execution guards reject nonfinite predictions rather than silently
+scoring a smaller subset, and cache checks include featurization and label-loading
+source hashes. Constant-descriptor scaling uses unit scale instead of amplifying
+new values by 1e6. All twelve descriptors have training-set standard deviations
+above 0.14 in this fixed partition, so the constant-feature hardening does not
+change the declared study's numerical preprocessing or hyperparameters.
+
 The frozen-artifact step is an auditable software boundary. Because the dataset
 is public and loaded in one process, it is not independent external blinding.
 
