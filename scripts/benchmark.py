@@ -132,7 +132,30 @@ def main():
         n_members=args.members, base_seed=args.seed * 100, epochs=args.epochs, kind=args.kind,
         checkpoint_dir=out / "models" if args.save_models else None)
     combined = np.concatenate([val, test])
-    baselines_all = evaluate.classical_baselines(data.fps[train], data.y[train], data.fps[combined], seed=args.seed)
+    # The classical fit does not depend on neural architecture. Reuse the first
+    # hybrid run's exact predictions for this seed when all inputs agree.
+    origin = out.parent / f"scaffold_hybrid_seed{args.seed}"
+    reused = False
+    if args.kind != "hybrid" and (origin / "frozen.json").exists():
+        cached_prov = json.loads((origin / "provenance.json").read_text())
+        cached_split = json.loads((origin / "split.json").read_text())
+        cached_frozen = json.loads((origin / "frozen.json").read_text())
+        valid_cache = (
+            cached_prov["data_sha256"] == digest(data_path)
+            and cached_prov["config"]["seed"] == args.seed
+            and cached_split["indices"] == {k: v.tolist() for k, v in parts.items()}
+            and cached_prov["source_sha256"]["src/kinase_open/evaluate.py"] == digest(ROOT / "src/kinase_open/evaluate.py")
+            and cached_frozen["predictions_sha256"] == digest(origin / "predictions.npz")
+        )
+        if not valid_cache:
+            raise RuntimeError("baseline cache does not match this study")
+        with np.load(origin / "predictions.npz", allow_pickle=False) as cache:
+            names = [k.removeprefix("baseline_val_") for k in cache.files if k.startswith("baseline_val_")]
+            baselines_all = {k: np.concatenate([cache[f"baseline_val_{k}"], cache[f"baseline_test_{k}"]]) for k in names}
+        reused = True
+        print(f"Reusing fixed classical predictions from {origin.name}", flush=True)
+    else:
+        baselines_all = evaluate.classical_baselines(data.fps[train], data.y[train], data.fps[combined], seed=args.seed)
     baselines_val = {k: v[:len(val)] for k, v in baselines_all.items()}
     baselines_test = {k: v[len(val):] for k, v in baselines_all.items()}
     selected = evaluate.select_baseline(data.y[val], baselines_val)
@@ -151,7 +174,8 @@ def main():
         **{f"baseline_test_{k}": v for k, v in baselines_test.items()})
     write_json(out / "frozen.json", {"predictions_sha256": digest(predictions_path),
         "split_sha256": digest(out / "split.json"), "selected_baseline_by_validation": selected,
-        "calibrators": {k: v.to_dict() for k, v in calibrators.items()}, "frozen_before_test_scoring": True})
+        "calibrators": {k: v.to_dict() for k, v in calibrators.items()}, "frozen_before_test_scoring": True,
+        "baseline_predictions_reused_from": origin.name if reused else None})
     # Test labels enter scoring only after the artifacts above are frozen. This
     # is a software boundary on public data, not independent external blinding.
     y_test = data.y[test]

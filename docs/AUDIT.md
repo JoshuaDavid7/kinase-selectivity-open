@@ -47,6 +47,13 @@ known; this is a retrospective correction, not a new blinded validation.
 No winner-dependent architecture search or test-driven hyperparameter sweep is
 part of this rerun. All declared runs must be reported, including unfavorable ones.
 
+Classical models do not depend on neural architecture. After the first run, a
+cache reuses each seed's exact frozen classical predictions for the FP and graph
+runs, checking the data, split, seed, evaluator source and artifact hashes first.
+This changes execution cost, not the comparator or study settings. Run times
+therefore include different amounts of reused work and are not a fair compute
+efficiency comparison between architectures.
+
 The frozen-artifact step is an auditable software boundary. Because the dataset
 is public and loaded in one process, it is not independent external blinding.
 
