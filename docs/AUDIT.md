@@ -59,12 +59,23 @@ is public and loaded in one process, it is not independent external blinding.
 
 ## Remaining scientific limitations
 
+A subsequent source audit archived the original four raw CSVs, verified that the
+curated labels rebuild offline, and recovered metadata for all 292 cached assay
+IDs. It found 244 direct-assignment confidence-9 assays and 48 homologous-assignment
+confidence-8 assays. The latter account for 1,805 of 9,707 retained raw records.
+One assay explicitly annotates JAK2 V617F. These observations strengthen the
+provenance warning: the historical table is not a pure wild-type human panel.
+They are not used to quietly redefine the dataset during the declared rerun.
+The assay metadata snapshot is from ChEMBL 37 at the new retrieval date; the
+original release remains unknown.
+
 - Assay confidence, assay conditions, protein constructs and document identifiers
   were not all retained in the original raw cache. The median pKi table pools
   heterogeneous experiments. Equal values alone do not establish label copying.
 - The original pull did not record a ChEMBL release or retrieval timestamp. The
   committed curated CSV and its SHA256 define this study; a future live API pull
-  may change the data. Full raw caches are not redistributed by this repository.
+  may change the data. The original raw cache and recovered assay metadata are
+  now archived with explicit data licensing and hashes.
 - No consistent salt/tautomer normalization or stereochemical representation was
   added in this correction. The graph features and default Morgan fingerprints
   do not explicitly encode stereochemistry. This limits enantiomer-specific claims.

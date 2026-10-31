@@ -43,6 +43,9 @@ def verify_run(path):
     # splits and evaluation; their exact training-time bytes must still agree.
     for name, sha in provenance["source_sha256"].items():
         if name.startswith("src/") or name in {"scripts/benchmark.py", "scripts/run_experiment.py", "scripts/replicate.py"}:
+            snapshot = path.parent / 'source_snapshots' / f'{sha}.py'
+            if snapshot.exists() and digest(snapshot) == sha:
+                continue
             historical = subprocess.run(["git", "show", f"{provenance['git_base_commit']}:{name}"],
                 cwd=ROOT, capture_output=True, check=False)
             archived_matches = historical.returncode == 0 and hashlib.sha256(historical.stdout).hexdigest() == sha

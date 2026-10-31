@@ -4,10 +4,13 @@ The corrected benchmark establishes an inspectable implementation, not a
 validated biological discovery or a general neural advantage. The following
 stages have explicit stopping conditions; they are not claims of completed work.
 
-1. **Recover measurement provenance.** Retrieve versioned ChEMBL activity,
-   document and assay metadata. Record target-assignment confidence, organism,
+1. **Complete measurement harmonization.** The original raw CSVs, an offline
+   reconstruction check and recovered metadata for all 292 assays are now
+   archived. Next recover activity-level provenance where possible, and construct
+   a separately versioned high-confidence cohort before a new study. Record organism,
    construct/mutation information when available, measurement type, relation,
-   units and replicate dispersion. Keep an immutable source snapshot. Audit
+   units and replicate dispersion. The original pull's release is still unknown;
+   do not infer it from the new metadata snapshot. Audit
    exact cross-target values against those sources without assuming copying.
    Stop treating selectivity as an assay-independent label if conditions cannot
    be reconciled. Define matched-assay/paper panels separately from pooled medians.

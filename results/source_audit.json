@@ -1,0 +1,78 @@
+{
+  "raw_to_curated_labels_reproduced_atol": 1e-07,
+  "raw_to_curated_verified": true,
+  "raw_rows": 13680,
+  "curation": {
+    "raw_rows": 13680,
+    "dropped_no_smiles": 19,
+    "dropped_flagged": 38,
+    "dropped_censored": 3916,
+    "dropped_no_pchembl": 0,
+    "kept_measurements": 6698,
+    "unique_compounds": 3621
+  },
+  "raw_snapshot_sha256": {
+    "JAK1_Ki_raw.csv": "c2d7bb12bd2bf9839f51a394498d7d7b4875c596b9eb9758da740e9126d7c100",
+    "JAK2_Ki_raw.csv": "0038037f5a75a755022ea7ccb3b0a3759a771e93e7778f9e0cf1acc9f5b3b730",
+    "JAK3_Ki_raw.csv": "453da7453c3beaad7a4b38ecdc989ea0963e6cb25b57dde985a7bbbbf303fbc9",
+    "TYK2_Ki_raw.csv": "ef8cbd8bb20e6d83bda72635720b05be4f21fdde88a39239301b49603fffed84"
+  },
+  "curated_sha256": "554e74e322538264129525de4e5caeaf3028a5e85b0001a9a98e01864db54bba",
+  "assay_metadata_sha256": "19fc42740c1d002932b3a8ea8b9d6d3c6497cc43275882b7a2683a6394ff330a",
+  "metadata_retrieved_at_utc": "2026-10-31T16:43:43.904211+00:00",
+  "unique_cached_assays": 292,
+  "assays_by_target_assignment_confidence": {
+    "8": 48,
+    "9": 244
+  },
+  "kept_raw_rows_by_confidence": {
+    "9": 7902,
+    "8": 1805
+  },
+  "unique_documents_among_kept_rows": 101,
+  "assays_with_variant_sequence_metadata": 1,
+  "pairwise_shared_document_support": {
+    "JAK1/JAK2": {
+      "paired": 1686,
+      "shared_document_support": 1686,
+      "identical_pooled_pKi": 250,
+      "identical_with_shared_document_support": 250
+    },
+    "JAK1/JAK3": {
+      "paired": 442,
+      "shared_document_support": 442,
+      "identical_pooled_pKi": 77,
+      "identical_with_shared_document_support": 77
+    },
+    "JAK1/TYK2": {
+      "paired": 429,
+      "shared_document_support": 429,
+      "identical_pooled_pKi": 138,
+      "identical_with_shared_document_support": 138
+    },
+    "JAK2/JAK3": {
+      "paired": 517,
+      "shared_document_support": 517,
+      "identical_pooled_pKi": 76,
+      "identical_with_shared_document_support": 76
+    },
+    "JAK2/TYK2": {
+      "paired": 648,
+      "shared_document_support": 647,
+      "identical_pooled_pKi": 164,
+      "identical_with_shared_document_support": 164
+    },
+    "JAK3/TYK2": {
+      "paired": 523,
+      "shared_document_support": 523,
+      "identical_pooled_pKi": 261,
+      "identical_with_shared_document_support": 261
+    }
+  },
+  "limitations": [
+    "posthoc provenance audit, not a new model evaluation",
+    "shared document does not establish identical assay conditions or independent experiments",
+    "the pooled median can include other documents as well",
+    "a high target-assignment confidence score does not establish wild-type protein or comparable constructs"
+  ]
+}
