@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -91,7 +92,7 @@ class Standardizer:
         std = np.ones(y.shape[1], dtype=np.float32)
         for t in range(y.shape[1]):
             observed = y[mask[:, t] > 0, t]
-            if len(observed) > 1:
+            if len(observed):
                 mean[t] = observed.mean()
                 s = observed.std()
                 std[t] = s if s > 1e-6 else 1.0
@@ -132,6 +133,8 @@ def train_one(
     )
 
     model = MolecularNetwork(n_targets=data.y.shape[1], kind=kind, hidden=hidden, depth=depth, dropout=dropout)
+    if model.fp_encoder is not None:
+        model.fp_encoder.fit_descriptors(torch.from_numpy(data.fps[train_idx]))
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=4)
 
@@ -237,6 +240,7 @@ def train_ensemble_multi(
     predict_sets: list[np.ndarray],
     n_members: int = 5,
     base_seed: int = 0,
+    checkpoint_dir: Path | None = None,
     **kwargs,
 ) -> list[EnsemblePrediction]:
     """Train one ensemble and predict several index sets with it.
@@ -252,6 +256,16 @@ def train_ensemble_multi(
     per_set: list[list[np.ndarray]] = [[] for _ in predict_sets]
     for i in range(n_members):
         model = train_one(data, train_idx, val_idx, standardizer, seed=base_seed + i, **kwargs)
+        if checkpoint_dir is not None:
+            checkpoint_dir.mkdir(parents=True, exist_ok=True)
+            torch.save({
+                "state_dict": model.state_dict(), "kind": kwargs.get("kind", "hybrid"),
+                "hidden": kwargs.get("hidden", 96), "depth": kwargs.get("depth", 3),
+                "dropout": kwargs.get("dropout", 0.1), "n_targets": data.y.shape[1],
+                "standardizer_mean": torch.from_numpy(standardizer.mean),
+                "standardizer_std": torch.from_numpy(standardizer.std),
+                "seed": base_seed + i,
+            }, checkpoint_dir / f"member_{i}.pt")
         for s, idx in enumerate(predict_sets):
             per_set[s].append(standardizer.decode(predict(model, data, idx)))
 

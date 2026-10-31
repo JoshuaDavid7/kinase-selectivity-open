@@ -6,3 +6,9 @@ __pycache__/
 *.egg-info/
 .DS_Store
 results_scaffold.log
+**/models/
+data/chembl_cache/
+*.log
+*.zip
+build/
+dist/

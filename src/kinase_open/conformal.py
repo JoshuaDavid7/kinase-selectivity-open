@@ -28,20 +28,28 @@ def _finite_quantile(scores: np.ndarray, alpha: float) -> float:
     asymptotically; with few calibration points it is the difference between a
     real 90% and a hopeful one.
     """
+    scores = np.asarray(scores, dtype=float)
+    if not 0 < alpha < 1:
+        raise ValueError("alpha must be between zero and one")
+    if scores.ndim != 1 or not np.isfinite(scores).all():
+        raise ValueError("scores must be a finite one-dimensional array")
     n = len(scores)
     if n == 0:
         raise ValueError("no calibration scores")
-    level = min(1.0, np.ceil((n + 1) * (1 - alpha)) / n)
-    return float(np.quantile(scores, level, method="higher"))
+    rank = int(np.ceil((n + 1) * (1 - alpha)))
+    # The augmented (n+1)th score is infinity. Capping at the largest observed
+    # residual silently loses the finite-sample guarantee for small n.
+    if rank > n:
+        return float("inf")
+    return float(np.partition(scores, rank - 1)[rank - 1])
 
 
 @dataclass
 class ConformalCalibrator:
     """Fitted on calibration residuals; applies to new predictions.
 
-    `sigma_floor` is reported because it is a modelling choice, not a constant
-    handed down: it is set from the calibration spread itself (a low percentile
-    of sigma), so it adapts to how confident this particular ensemble is.
+    The score function, including sigma_floor, must be fixed independently of
+    the calibration set. The experiment chooses the floor on validation data.
     """
 
     alpha: float
@@ -50,10 +58,12 @@ class ConformalCalibrator:
     n_calibration: int
 
     def interval(self, mu: np.ndarray, sigma: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        half = self.q * (sigma + self.sigma_floor)
+        half = self.half_width(sigma)
         return mu - half, mu + half
 
     def half_width(self, sigma: np.ndarray) -> np.ndarray:
+        if np.any(np.asarray(sigma) < 0):
+            raise ValueError("sigma must be nonnegative")
         return self.q * (sigma + self.sigma_floor)
 
     def to_dict(self) -> dict:
@@ -70,41 +80,42 @@ def fit(
     mu: np.ndarray,
     sigma: np.ndarray,
     alpha: float = 0.1,
-    floor_percentile: float = 10.0,
+    sigma_floor: float = 1e-3,
 ) -> ConformalCalibrator:
     """Calibrate on held-out predictions.
 
     Only finite entries are used, so a target a compound was never measured
     against simply does not contribute.
     """
+    if not np.isfinite(sigma_floor) or sigma_floor <= 0:
+        raise ValueError("sigma_floor must be finite and positive")
+    if np.any(np.asarray(sigma) < 0):
+        raise ValueError("sigma must be nonnegative")
     ok = np.isfinite(y) & np.isfinite(mu) & np.isfinite(sigma)
     y, mu, sigma = y[ok], mu[ok], sigma[ok]
     if len(y) == 0:
         raise ValueError("no finite calibration points")
 
-    floor = float(np.percentile(sigma, floor_percentile))
-    if not np.isfinite(floor) or floor <= 0:
-        floor = float(np.std(y - mu)) * 1e-3 or 1e-6
-
-    scores = np.abs(y - mu) / (sigma + floor)
+    scores = np.abs(y - mu) / (sigma + sigma_floor)
     return ConformalCalibrator(
         alpha=alpha,
         q=_finite_quantile(scores, alpha),
-        sigma_floor=floor,
+        sigma_floor=float(sigma_floor),
         n_calibration=len(y),
     )
 
 
 def coverage(y: np.ndarray, lo: np.ndarray, hi: np.ndarray) -> float:
     """Fraction of truths inside the interval, over finite entries."""
-    ok = np.isfinite(y) & np.isfinite(lo) & np.isfinite(hi)
+    # Infinite intervals are valid (and sometimes required at small n).
+    ok = np.isfinite(y) & ~np.isnan(lo) & ~np.isnan(hi) & (lo <= hi)
     if ok.sum() == 0:
         return float("nan")
     return float(((y[ok] >= lo[ok]) & (y[ok] <= hi[ok])).mean())
 
 
 def mean_width(lo: np.ndarray, hi: np.ndarray) -> float:
-    ok = np.isfinite(lo) & np.isfinite(hi)
+    ok = ~np.isnan(lo) & ~np.isnan(hi) & (lo <= hi)
     return float((hi[ok] - lo[ok]).mean()) if ok.sum() else float("nan")
 
 

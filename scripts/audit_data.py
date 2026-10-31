@@ -1,10 +1,7 @@
-"""Audit the curated table before trusting any model trained on it.
+"""Describe repeated labels without inferring their experimental provenance.
 
-The headline check is for *byte-identical* pKi values across a pair of targets
-for the same compound. Real paralog measurements agree often, but they do not
-agree to the last decimal place: when they do, the two numbers usually came
-from one reported figure covering a panel, not from two independent assays. A
-model scored on duplicated labels is partly being scored on its ability to copy.
+Equal recorded values can reflect rounding, genuine similarity, copied values,
+or other causes. Equality alone cannot distinguish these explanations.
 """
 
 from __future__ import annotations

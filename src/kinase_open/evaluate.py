@@ -10,6 +10,10 @@ from scipy.stats import spearmanr
 from sklearn.ensemble import ExtraTreesRegressor, RandomForestRegressor
 from sklearn.linear_model import Ridge
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+from .featurize import MORGAN_BITS
 
 TARGETS = ["JAK1", "JAK2", "JAK3", "TYK2"]
 
@@ -39,7 +43,7 @@ def regression_metrics(y: np.ndarray, pred: np.ndarray) -> Metrics:
 
     err = y - pred
     sst = float(((y - y.mean()) ** 2).sum())
-    rho = spearmanr(y, pred).statistic if len(y) > 2 else float("nan")
+    rho = spearmanr(y, pred).statistic if len(y) > 2 and np.ptp(y) > 0 and np.ptp(pred) > 0 else float("nan")
     return Metrics(
         n=int(len(y)),
         mae=float(np.abs(err).mean()),
@@ -66,6 +70,27 @@ def selectivity_margin(y: np.ndarray, target_index: int) -> np.ndarray:
         margin = y[:, target_index] - best_other
     margin[~np.isfinite(y[:, target_index]) | ~np.isfinite(best_other)] = np.nan
     return margin
+
+
+def matched_selectivity_margins(
+    y: np.ndarray, pred: np.ndarray, target_index: int, complete_panel: bool = False
+) -> tuple[np.ndarray, np.ndarray]:
+    """Compare predictions and observations against exactly the same panel.
+
+    An unmeasured competitor must not enter only the predicted maximum.
+    Partial-panel margins describe the measured subset, not full-family selectivity.
+    """
+    if y.shape != pred.shape:
+        raise ValueError("labels and predictions must have the same shape")
+    measured = np.isfinite(y)
+    masked_pred = np.where(measured, pred, np.nan)
+    truth = selectivity_margin(y, target_index)
+    estimate = selectivity_margin(masked_pred, target_index)
+    # Do not silently shrink a panel if a measured target has no prediction.
+    valid = (~measured | np.isfinite(pred)).all(axis=1)
+    if complete_panel:
+        valid &= measured.all(axis=1)
+    return np.where(valid, truth, np.nan), np.where(valid, estimate, np.nan)
 
 
 def margin_preference_accuracy(y_margin: np.ndarray, pred_margin: np.ndarray) -> tuple[float, float]:
@@ -112,18 +137,25 @@ def classical_baselines(
     fp_test: np.ndarray,
     seed: int = 0,
 ) -> dict[str, np.ndarray]:
-    """Seven baselines a neural model has to actually beat.
+    """Ten fixed baselines: Morgan-only and descriptor-augmented variants.
 
     Each is fitted per target on that target's observed rows, because the
     sklearn models have no notion of a masked loss.
     """
+    # Jaccard is a boolean-set distance. Passing continuous descriptors here
+    # silently converts nonzero descriptor values to bits.
+    full_train, full_test = fp_train, fp_test
+    fp_train, fp_test = fp_train[:, :MORGAN_BITS], fp_test[:, :MORGAN_BITS]
     models = {
         "ridge": lambda: Ridge(alpha=1.0, random_state=None),
-        "random_forest": lambda: RandomForestRegressor(n_estimators=200, n_jobs=-1, random_state=seed),
-        "extra_trees": lambda: ExtraTreesRegressor(n_estimators=200, n_jobs=-1, random_state=seed),
+        "random_forest": lambda: RandomForestRegressor(n_estimators=200, n_jobs=1, random_state=seed),
+        "extra_trees": lambda: ExtraTreesRegressor(n_estimators=200, n_jobs=1, random_state=seed),
         "knn_1": lambda: KNeighborsRegressor(n_neighbors=1, metric="jaccard"),
         "knn_5": lambda: KNeighborsRegressor(n_neighbors=5, metric="jaccard"),
         "knn_5_distance": lambda: KNeighborsRegressor(n_neighbors=5, metric="jaccard", weights="distance"),
+        "ridge_descriptors": lambda: make_pipeline(StandardScaler(), Ridge(alpha=1.0)),
+        "random_forest_descriptors": lambda: RandomForestRegressor(n_estimators=200, n_jobs=1, random_state=seed),
+        "extra_trees_descriptors": lambda: ExtraTreesRegressor(n_estimators=200, n_jobs=1, random_state=seed),
     }
 
     out: dict[str, np.ndarray] = {}
@@ -145,10 +177,44 @@ def classical_baselines(
             est = make()
             if isinstance(est, Ridge):
                 est = Ridge(alpha=1.0)
-            est.fit(fp_train[obs], y_train[obs, t])
-            pred[:, t] = est.predict(fp_test)
+            x_fit, x_pred = fp_train[obs], fp_test
+            if name.endswith("_descriptors"):
+                x_fit, x_pred = full_train[obs], full_test
+            if isinstance(est, KNeighborsRegressor):
+                x_fit, x_pred = x_fit.astype(bool), x_pred.astype(bool)
+            est.fit(x_fit, y_train[obs, t])
+            pred[:, t] = est.predict(x_pred)
         out[name] = pred
     return out
+
+
+def select_baseline(y_val: np.ndarray, predictions: dict[str, np.ndarray]) -> str:
+    """Select one baseline by validation macro-MAE; never inspect test labels."""
+    scores = {}
+    for name, pred in predictions.items():
+        values = [regression_metrics(y_val[:, t], pred[:, t]).mae for t in range(y_val.shape[1])]
+        scores[name] = float(np.nanmean(values))
+    finite = {name: score for name, score in scores.items() if np.isfinite(score)}
+    if not finite:
+        raise ValueError("no baseline has a finite validation score")
+    return min(finite, key=lambda name: (finite[name], name))
+
+
+def paired_mae_difference_ci(
+    y: np.ndarray, pred_a: np.ndarray, pred_b: np.ndarray, groups: np.ndarray,
+    n_boot: int = 1000, alpha: float = 0.05, seed: int = 0,
+) -> tuple[float, float, float]:
+    """Scaffold bootstrap for MAE(A)-MAE(B) on paired observations.
+
+    Negative favors A. This is an exploratory interval, without correction for
+    multiple targets/comparisons; overlap with zero does not establish equivalence.
+    """
+    ok = np.isfinite(y) & np.isfinite(pred_a) & np.isfinite(pred_b)
+    differences = np.abs(y[ok] - pred_a[ok]) - np.abs(y[ok] - pred_b[ok])
+    return scaffold_bootstrap_ci(
+        differences, np.zeros_like(differences), groups[ok],
+        statistic=lambda a, b: float(np.mean(a - b)), n_boot=n_boot, alpha=alpha, seed=seed,
+    )
 
 
 def scaffold_bootstrap_ci(

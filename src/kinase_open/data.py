@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 import requests
 
 BASE = "https://www.ebi.ac.uk/chembl/api/data"
@@ -85,6 +86,8 @@ def fetch_activities(target_chembl_id: str, standard_type: str = "Ki") -> pd.Dat
 
 
 KEEP = [
+    "activity_id",
+    "document_chembl_id",
     "molecule_chembl_id",
     "canonical_smiles",
     "standard_type",
@@ -160,11 +163,12 @@ def curate(raw: pd.DataFrame) -> tuple[pd.DataFrame, CurationReport]:
     dropped_censored = int((~exact).sum())
     df = df[exact]
 
-    has_p = df["pchembl_value"].notna()
+    numeric_p = pd.to_numeric(df["pchembl_value"], errors="coerce")
+    has_p = np.isfinite(numeric_p)
     dropped_no_pchembl = int((~has_p).sum())
     df = df[has_p]
 
-    df = df.assign(pKi=pd.to_numeric(df["pchembl_value"], errors="coerce")).dropna(subset=["pKi"])
+    df = df.assign(pKi=numeric_p[has_p])
 
     # One structure can appear under several ChEMBL ids; key on the SMILES that
     # the model will actually see, not on the accession number.

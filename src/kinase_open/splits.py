@@ -43,9 +43,9 @@ def scaffold_split(
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Assign whole scaffold groups to train/val/test, largest first.
 
-    Filling largest-first makes the split deterministic and puts the common
-    series in training, which is the honest version: the test set is then the
-    rarer chemistry, not a lucky draw of singletons.
+    Membership is deterministic and independent of seed; seed is retained for
+    compatibility. Repeating this split with different training seeds measures
+    optimization variability, not variability across chemical partitions.
     """
     groups = scaffold_groups(smiles)
     ordered = sorted(groups.values(), key=lambda idx: (-len(idx), idx[0]))
@@ -63,8 +63,7 @@ def scaffold_split(
         else:
             test.extend(group)
 
-    rng = np.random.default_rng(seed)
-    return tuple(np.sort(rng.permutation(np.array(part, dtype=int))) for part in (train, val, test))
+    return tuple(np.array(sorted(part), dtype=int) for part in (train, val, test))
 
 
 def random_split(

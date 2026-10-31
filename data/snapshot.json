@@ -1,0 +1,34 @@
+{
+  "source_repository_commit": "9759244a4ad4a41fd82adfb04f5dd1752bab5805",
+  "source": "ChEMBL REST API; Ki activities for JAK1/JAK2/JAK3/TYK2",
+  "retrieval_time": "not recorded in original artifacts",
+  "chembl_release": "not recorded in original artifacts",
+  "files": {
+    "data/jak_pki.csv": {
+      "sha256": "554e74e322538264129525de4e5caeaf3028a5e85b0001a9a98e01864db54bba",
+      "bytes": 273751
+    },
+    "data/chembl_cache/JAK1_Ki_raw.csv": {
+      "sha256": "c2d7bb12bd2bf9839f51a394498d7d7b4875c596b9eb9758da740e9126d7c100",
+      "bytes": 478904
+    },
+    "data/chembl_cache/JAK2_Ki_raw.csv": {
+      "sha256": "0038037f5a75a755022ea7ccb3b0a3759a771e93e7778f9e0cf1acc9f5b3b730",
+      "bytes": 543350
+    },
+    "data/chembl_cache/JAK3_Ki_raw.csv": {
+      "sha256": "453da7453c3beaad7a4b38ecdc989ea0963e6cb25b57dde985a7bbbbf303fbc9",
+      "bytes": 279269
+    },
+    "data/chembl_cache/TYK2_Ki_raw.csv": {
+      "sha256": "ef8cbd8bb20e6d83bda72635720b05be4f21fdde88a39239301b49603fffed84",
+      "bytes": 312774
+    }
+  },
+  "limitations": [
+    "assay confidence and construct metadata were not retained",
+    "medians pool heterogeneous assays",
+    "equal cross-target values do not establish duplicated experiments",
+    "no salt or tautomer standardization beyond source SMILES"
+  ]
+}

@@ -10,7 +10,7 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
-from .featurize import ATOM_DIM, BOND_DIM, FP_DIM, BatchedGraph
+from .featurize import ATOM_DIM, BOND_DIM, FP_DIM, MORGAN_BITS, BatchedGraph
 
 
 class DMPNNEncoder(nn.Module):
@@ -73,6 +73,8 @@ class DMPNNEncoder(nn.Module):
 class FingerprintEncoder(nn.Module):
     def __init__(self, hidden: int = 96, dropout: float = 0.1):
         super().__init__()
+        self.register_buffer("feature_mean", torch.zeros(FP_DIM))
+        self.register_buffer("feature_scale", torch.ones(FP_DIM))
         self.net = nn.Sequential(
             nn.Linear(FP_DIM, hidden * 2),
             nn.ReLU(),
@@ -82,7 +84,15 @@ class FingerprintEncoder(nn.Module):
         )
 
     def forward(self, fp: torch.Tensor) -> torch.Tensor:
-        return self.net(fp)
+        return self.net((fp - self.feature_mean) / self.feature_scale)
+
+    def fit_descriptors(self, train_fp: torch.Tensor) -> None:
+        """Fit descriptor scaling on training molecules; leave Morgan bits alone."""
+        with torch.no_grad():
+            desc = train_fp[:, MORGAN_BITS:]
+            self.feature_mean[MORGAN_BITS:] = desc.mean(dim=0)
+            scale = desc.std(dim=0, unbiased=False)
+            self.feature_scale[MORGAN_BITS:] = scale.clamp(min=1e-6)
 
 
 class MolecularNetwork(nn.Module):
@@ -146,6 +156,7 @@ def masked_mse(pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) -> 
     are not zeros, and treating them as zeros would teach the model that an
     unmeasured compound is inactive.
     """
-    if mask.sum() == 0:
+    observed = mask > 0
+    if not observed.any():
         return pred.sum() * 0.0
-    return (((pred - target) ** 2) * mask).sum() / mask.sum()
+    return (((pred[observed] - target[observed]) ** 2) * mask[observed]).sum() / mask[observed].sum()
