@@ -33,8 +33,8 @@ class Metrics:
 def regression_metrics(y: np.ndarray, pred: np.ndarray) -> Metrics:
     """Metrics over finite pairs only.
 
-    R^2 here is 1 - SSE/SST against the *test* mean, so a model that only
-    predicts the training mean scores about zero rather than looking good.
+    R^2 is 1 - SSE/SST against the test mean. A constant equal to that mean has
+    R^2 zero; a training-mean constant can score below zero under shift.
     """
     ok = np.isfinite(y) & np.isfinite(pred)
     y, pred = y[ok], pred[ok]

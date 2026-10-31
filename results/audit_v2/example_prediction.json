@@ -1,0 +1,92 @@
+{
+  "predictions": [
+    {
+      "smiles": "CS(=O)(=O)Nc1cccc(CC(=O)Nc2nc(-c3c[nH]c4ncccc34)cs2)c1",
+      "max_training_morgan_tanimoto": 0.3950617283950617,
+      "targets": {
+        "JAK1": {
+          "predicted_pKi": 7.33897066116333,
+          "ensemble_std": 0.2712736427783966,
+          "nominal_90_interval": [
+            5.236132621765137,
+            9.441808700561523
+          ],
+          "unbounded": false
+        },
+        "JAK2": {
+          "predicted_pKi": 6.368915557861328,
+          "ensemble_std": 0.1717350035905838,
+          "nominal_90_interval": [
+            4.775671005249023,
+            7.962160110473633
+          ],
+          "unbounded": false
+        },
+        "JAK3": {
+          "predicted_pKi": 6.29200553894043,
+          "ensemble_std": 0.1671593338251114,
+          "nominal_90_interval": [
+            4.371429443359375,
+            8.212581634521484
+          ],
+          "unbounded": false
+        },
+        "TYK2": {
+          "predicted_pKi": 6.629392147064209,
+          "ensemble_std": 0.22789007425308228,
+          "nominal_90_interval": [
+            3.320706605911255,
+            9.938077926635742
+          ],
+          "unbounded": false
+        }
+      }
+    },
+    {
+      "smiles": "CS(=O)(=O)c1ccc(-c2cccn3nc(Nc4ccc(C(=O)N5CCOCC5)cc4)nc23)cc1",
+      "max_training_morgan_tanimoto": 0.6923076923076923,
+      "targets": {
+        "JAK1": {
+          "predicted_pKi": 8.775153160095215,
+          "ensemble_std": 0.09853827953338623,
+          "nominal_90_interval": [
+            7.867849349975586,
+            9.682456970214844
+          ],
+          "unbounded": false
+        },
+        "JAK2": {
+          "predicted_pKi": 9.148097038269043,
+          "ensemble_std": 0.17459076642990112,
+          "nominal_90_interval": [
+            7.534055709838867,
+            10.762138366699219
+          ],
+          "unbounded": false
+        },
+        "JAK3": {
+          "predicted_pKi": 8.182296752929688,
+          "ensemble_std": 0.16017624735832214,
+          "nominal_90_interval": [
+            6.328277587890625,
+            10.03631591796875
+          ],
+          "unbounded": false
+        },
+        "TYK2": {
+          "predicted_pKi": 7.936624050140381,
+          "ensemble_std": 0.1484801024198532,
+          "nominal_90_interval": [
+            5.6274590492248535,
+            10.24578857421875
+          ],
+          "unbounded": false
+        }
+      }
+    }
+  ],
+  "scope": "retrospective ligand-based affinity model; no prospective or whole-kinome validation",
+  "interval_caveat": "empirical calibration, no automatic coverage guarantee on new chemistry",
+  "similarity_caveat": "fingerprint similarity describes proximity to training data; it is not a reliability guarantee",
+  "null_interval_endpoint_means_unbounded": true
+}

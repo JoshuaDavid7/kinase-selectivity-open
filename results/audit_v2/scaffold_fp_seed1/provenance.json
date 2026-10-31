@@ -1,0 +1,54 @@
+{
+  "protocol": "audit_v2",
+  "config": {
+    "split": "scaffold",
+    "members": 3,
+    "epochs": 40,
+    "seed": 1,
+    "kind": "fp",
+    "threads": 1,
+    "save_models": false,
+    "out": "/Users/joshuadavid/Documents/Codex/2026-10-30/josh-i-was-thinking-and-wondered/work/kinase-audit/results/audit_v2/scaffold_fp_seed1"
+  },
+  "python": "3.11.15 (main, May 10 2026, 19:23:19) [Clang 22.1.3 ]",
+  "platform": "macOS-26.6.2-x86_64-i386-64bit",
+  "packages": {
+    "numpy": "1.26.4",
+    "pandas": "3.0.6",
+    "torch": "2.2.2",
+    "rdkit": "2025.9.3",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.17.1"
+  },
+  "data_sha256": "554e74e322538264129525de4e5caeaf3028a5e85b0001a9a98e01864db54bba",
+  "source_sha256": {
+    "src/kinase_open/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/kinase_open/conformal.py": "35c098e9b5f591c1d8a3507194d3ce7b07ea2df08ce9242b0ab50cd05a6b504d",
+    "src/kinase_open/data.py": "3e7bc702049128dee6cb728805fce828d2d274dc1222aed73c7a8c1de6186af1",
+    "src/kinase_open/evaluate.py": "5905a90acf5ede51bdf46034ffc98b58a3cfc9d0792f08a273fe05a76778ffb6",
+    "src/kinase_open/featurize.py": "d851a5e4003526290db31fdef8380c444426db2f68ad06252fedd2b28e32cef2",
+    "src/kinase_open/inference.py": "5d877511841e57cce9236f8a2f1c0866ec266b034d63168c5e6101fe5855799e",
+    "src/kinase_open/model.py": "a321e5c42d1cefe155f9fb83ca227069b9fa34c6237b4a71e6e25c230cbacba2",
+    "src/kinase_open/splits.py": "d8ea9c8fc919858b584013002f993bdfa424cf88d62e6668fa4307cba113c899",
+    "src/kinase_open/train.py": "d5cab7a3db0b894efe4747971e369e9055cd57c540c2009b9aa7f4f38c780c0a",
+    "scripts/audit_data.py": "b429b84ab8f54844b81928b15850a4cd847d3a4527b735ed75a942028d2667c5",
+    "scripts/benchmark.py": "28051e12075fcca92110e45c022715b5243626ac926aa84bf53fe9be3b8bbdf1",
+    "scripts/build_dataset.py": "c9c8c41d33b77067fdc8472e25ea3c4a8bb43d970440ab7e3ad752fb2c2190b9",
+    "scripts/check_readme.py": "527a1aad46723b488f1fec83a50124465faaa4848aa7480d0546ea91e0121f75",
+    "scripts/predict.py": "cd0599eefc1e114e469a46aac5334bf6cb1c4d54e042a45feac125c784acf782",
+    "scripts/render_results.py": "12ad3d2a1571ef8e13bec02f0bfb287fad0bc6231e09fb7d6ed17af3bde60382",
+    "scripts/replicate.py": "5848b0d3d993326c8172340ecfd4498a3f766c81fb43b6d2948358dbb1de8180",
+    "scripts/run_experiment.py": "94fa586cb137bf181a86e89b07bbdbf3ca7f40dfa65a88060f270d228db492d3",
+    "scripts/verify_results.py": "5ff2a2233a12fff3dcde7a324270499465b0ffe6edaa35c408b2c51cc8da144f"
+  },
+  "git_base_commit": "ede96cbc420cbfa23454de4587e30527c9cbaef6",
+  "git_worktree_dirty": true,
+  "rows_in_csv": 3621,
+  "rows_featurized": 3621,
+  "limitations": [
+    "retrospective public labels",
+    "fixed chemical partition for scaffold runs",
+    "heterogeneous assays",
+    "no prospective validation"
+  ]
+}

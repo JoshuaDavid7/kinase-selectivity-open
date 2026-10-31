@@ -1,0 +1,633 @@
+{
+  "protocol": "audit_v2",
+  "config": {
+    "split": "scaffold",
+    "members": 3,
+    "epochs": 40,
+    "seed": 1,
+    "kind": "fp",
+    "threads": 1,
+    "save_models": false,
+    "out": "/Users/joshuadavid/Documents/Codex/2026-10-30/josh-i-was-thinking-and-wondered/work/kinase-audit/results/audit_v2/scaffold_fp_seed1"
+  },
+  "split_sizes": {
+    "train": 2534,
+    "validation": 272,
+    "calibration": 271,
+    "test": 544
+  },
+  "scaffold_groups": {
+    "train": 461,
+    "validation": 242,
+    "calibration": 242,
+    "test": 544
+  },
+  "selected_baseline_by_validation": "random_forest",
+  "per_target": {
+    "JAK1": {
+      "n": 303,
+      "mae": 0.25508785247802734,
+      "rmse": 0.3871622681617737,
+      "r2": 0.7981444221616159,
+      "spearman": 0.8572678911618867,
+      "mae_ci95": [
+        0.2249535869807005,
+        0.29069888442754743
+      ]
+    },
+    "JAK2": {
+      "n": 372,
+      "mae": 0.5484931468963623,
+      "rmse": 0.7789962291717529,
+      "r2": 0.7503446409355469,
+      "spearman": 0.8773517156105503,
+      "mae_ci95": [
+        0.4914063856005669,
+        0.6027033925056458
+      ]
+    },
+    "JAK3": {
+      "n": 115,
+      "mae": 0.705383837223053,
+      "rmse": 0.9413473606109619,
+      "r2": 0.40763135706197706,
+      "spearman": 0.6495763001286369,
+      "mae_ci95": [
+        0.5919589713215828,
+        0.8258806526660919
+      ]
+    },
+    "TYK2": {
+      "n": 145,
+      "mae": 0.7214275598526001,
+      "rmse": 0.9433326125144958,
+      "r2": 0.390532395114945,
+      "spearman": 0.6476232698174713,
+      "mae_ci95": [
+        0.624775792658329,
+        0.81735829859972
+      ]
+    }
+  },
+  "uncertainty": {
+    "JAK1": {
+      "nominal": 0.9,
+      "conformal_coverage": 0.9636963696369637,
+      "conformal_width_on_measured": 1.8961129188537598,
+      "raw_ensemble_coverage": 0.2838283828382838,
+      "raw_ensemble_width_on_measured": 0.21575550734996796,
+      "calibrator": {
+        "alpha": 0.1,
+        "q": 11.689468383789062,
+        "sigma_floor": 0.015518463030457497,
+        "n_calibration": 155
+      },
+      "unbounded": false,
+      "exchangeability_guarantee_claimed_for_scaffold_split": false
+    },
+    "JAK2": {
+      "nominal": 0.9,
+      "conformal_coverage": 0.8951612903225806,
+      "conformal_width_on_measured": 2.7080347537994385,
+      "raw_ensemble_coverage": 0.2446236559139785,
+      "raw_ensemble_width_on_measured": 0.351918488740921,
+      "calibrator": {
+        "alpha": 0.1,
+        "q": 10.020404815673828,
+        "sigma_floor": 0.028150392696261406,
+        "n_calibration": 166
+      },
+      "unbounded": false,
+      "exchangeability_guarantee_claimed_for_scaffold_split": false
+    },
+    "JAK3": {
+      "nominal": 0.9,
+      "conformal_coverage": 0.8869565217391304,
+      "conformal_width_on_measured": 3.4903368949890137,
+      "raw_ensemble_coverage": 0.16521739130434782,
+      "raw_ensemble_width_on_measured": 0.28316399455070496,
+      "calibrator": {
+        "alpha": 0.1,
+        "q": 14.817294120788574,
+        "sigma_floor": 0.03170340992510319,
+        "n_calibration": 91
+      },
+      "unbounded": false,
+      "exchangeability_guarantee_claimed_for_scaffold_split": false
+    },
+    "TYK2": {
+      "nominal": 0.9,
+      "conformal_coverage": 0.8344827586206897,
+      "conformal_width_on_measured": 3.2286579608917236,
+      "raw_ensemble_coverage": 0.2,
+      "raw_ensemble_width_on_measured": 0.36749550700187683,
+      "calibrator": {
+        "alpha": 0.1,
+        "q": 10.914610862731934,
+        "sigma_floor": 0.036194614693522455,
+        "n_calibration": 65
+      },
+      "unbounded": false,
+      "exchangeability_guarantee_claimed_for_scaffold_split": false
+    }
+  },
+  "baselines": {
+    "train_mean": {
+      "JAK1": {
+        "n": 303,
+        "mae": 0.5820959235968763,
+        "rmse": 0.8896619002612535,
+        "r2": -0.0658710727347791,
+        "spearman": null
+      },
+      "JAK2": {
+        "n": 372,
+        "mae": 1.3750131399400773,
+        "rmse": 1.7040161899146387,
+        "r2": -0.19458656767397287,
+        "spearman": null
+      },
+      "JAK3": {
+        "n": 115,
+        "mae": 1.530102020761241,
+        "rmse": 1.8010467974179747,
+        "r2": -1.1684142977837486,
+        "spearman": null
+      },
+      "TYK2": {
+        "n": 145,
+        "mae": 1.0752344131469727,
+        "rmse": 1.262528582845053,
+        "r2": -0.09170019758588444,
+        "spearman": null
+      }
+    },
+    "ridge": {
+      "JAK1": {
+        "n": 303,
+        "mae": 0.3418033540052156,
+        "rmse": 0.4774749455891197,
+        "r2": 0.6929876351226514,
+        "spearman": 0.7542138101507774
+      },
+      "JAK2": {
+        "n": 372,
+        "mae": 0.6606102707565472,
+        "rmse": 0.8991023515841295,
+        "r2": 0.6674258721855417,
+        "spearman": 0.82573722951114
+      },
+      "JAK3": {
+        "n": 115,
+        "mae": 0.8162030966385551,
+        "rmse": 1.0779267539498898,
+        "r2": 0.22326876551614994,
+        "spearman": 0.6014352495883374
+      },
+      "TYK2": {
+        "n": 145,
+        "mae": 0.8312069300947518,
+        "rmse": 1.0454116977087151,
+        "r2": 0.25149335276645035,
+        "spearman": 0.5681841289063553
+      }
+    },
+    "random_forest": {
+      "JAK1": {
+        "n": 303,
+        "mae": 0.2688641016136807,
+        "rmse": 0.4447196963662291,
+        "r2": 0.7336655041754604,
+        "spearman": 0.8466669616779184
+      },
+      "JAK2": {
+        "n": 372,
+        "mae": 0.5793140134534613,
+        "rmse": 0.8406164901863066,
+        "r2": 0.7092859615801976,
+        "spearman": 0.8644222427499869
+      },
+      "JAK3": {
+        "n": 115,
+        "mae": 0.8205791436691464,
+        "rmse": 1.0583627879848834,
+        "r2": 0.2512076640462787,
+        "spearman": 0.5573599378990843
+      },
+      "TYK2": {
+        "n": 145,
+        "mae": 0.7772742602632159,
+        "rmse": 1.0666148995111848,
+        "r2": 0.2208227874693317,
+        "spearman": 0.5231396082123629
+      }
+    },
+    "extra_trees": {
+      "JAK1": {
+        "n": 303,
+        "mae": 0.3226469619596752,
+        "rmse": 0.5217344797375641,
+        "r2": 0.6334326594427406,
+        "spearman": 0.7937338670291738
+      },
+      "JAK2": {
+        "n": 372,
+        "mae": 0.7048805815398052,
+        "rmse": 1.0175121957086983,
+        "r2": 0.5740590057632824,
+        "spearman": 0.7848831680635068
+      },
+      "JAK3": {
+        "n": 115,
+        "mae": 0.8585958927299666,
+        "rmse": 1.1741533387371108,
+        "r2": 0.07840119685276403,
+        "spearman": 0.5514705448468231
+      },
+      "TYK2": {
+        "n": 145,
+        "mae": 0.8842602919984137,
+        "rmse": 1.2509702213144942,
+        "r2": -0.07180281694088175,
+        "spearman": 0.36615614295519555
+      }
+    },
+    "knn_1": {
+      "JAK1": {
+        "n": 303,
+        "mae": 0.33471949265734985,
+        "rmse": 0.5447429789856915,
+        "r2": 0.6003885034239194,
+        "spearman": 0.783820834680572
+      },
+      "JAK2": {
+        "n": 372,
+        "mae": 0.6360483989920668,
+        "rmse": 0.96153363412111,
+        "r2": 0.6196362203329691,
+        "spearman": 0.8232912366014462
+      },
+      "JAK3": {
+        "n": 115,
+        "mae": 0.9333913264067276,
+        "rmse": 1.3164432020671384,
+        "r2": -0.15850128478366288,
+        "spearman": 0.49007457587341624
+      },
+      "TYK2": {
+        "n": 145,
+        "mae": 0.8692068790567332,
+        "rmse": 1.2951376190136257,
+        "r2": -0.14882211510967447,
+        "spearman": 0.3741527793403633
+      }
+    },
+    "knn_5": {
+      "JAK1": {
+        "n": 303,
+        "mae": 0.2483332401061609,
+        "rmse": 0.4082202009207584,
+        "r2": 0.7755892405788913,
+        "spearman": 0.8514425180584847
+      },
+      "JAK2": {
+        "n": 372,
+        "mae": 0.5733413786016485,
+        "rmse": 0.8444858246116063,
+        "r2": 0.7066035047826165,
+        "spearman": 0.8558947922188124
+      },
+      "JAK3": {
+        "n": 115,
+        "mae": 0.8776174420895784,
+        "rmse": 1.102573541440172,
+        "r2": 0.1873427760930152,
+        "spearman": 0.560175370381034
+      },
+      "TYK2": {
+        "n": 145,
+        "mae": 0.8491378685523724,
+        "rmse": 1.123014857774254,
+        "r2": 0.1362422540135373,
+        "spearman": 0.4770468433381964
+      }
+    },
+    "knn_5_distance": {
+      "JAK1": {
+        "n": 303,
+        "mae": 0.2523702660562292,
+        "rmse": 0.4140839382239087,
+        "r2": 0.7690959973237999,
+        "spearman": 0.8488567239836616
+      },
+      "JAK2": {
+        "n": 372,
+        "mae": 0.5727935979975187,
+        "rmse": 0.8417729811823217,
+        "r2": 0.7084855027656478,
+        "spearman": 0.8583426375409777
+      },
+      "JAK3": {
+        "n": 115,
+        "mae": 0.8651851258605816,
+        "rmse": 1.09591217272051,
+        "r2": 0.19713270163147534,
+        "spearman": 0.5707921768489916
+      },
+      "TYK2": {
+        "n": 145,
+        "mae": 0.8414308687438046,
+        "rmse": 1.1198286992884272,
+        "r2": 0.1411365170599881,
+        "spearman": 0.4776997433598146
+      }
+    },
+    "ridge_descriptors": {
+      "JAK1": {
+        "n": 303,
+        "mae": 0.5458122511508048,
+        "rmse": 0.7785182466691624,
+        "r2": 0.18380809535191667,
+        "spearman": 0.5922097853633346
+      },
+      "JAK2": {
+        "n": 372,
+        "mae": 1.2625234485954366,
+        "rmse": 1.7515500015814882,
+        "r2": -0.2621625007602897,
+        "spearman": 0.605237720861383
+      },
+      "JAK3": {
+        "n": 115,
+        "mae": 0.9540460752404254,
+        "rmse": 1.2854795271557589,
+        "r2": -0.10464465641875598,
+        "spearman": 0.5517084416662513
+      },
+      "TYK2": {
+        "n": 145,
+        "mae": 0.9878059157009782,
+        "rmse": 1.2378181267770523,
+        "r2": -0.04938445700973482,
+        "spearman": 0.5182458240391864
+      }
+    },
+    "random_forest_descriptors": {
+      "JAK1": {
+        "n": 303,
+        "mae": 0.24824113928701538,
+        "rmse": 0.42404188560922457,
+        "r2": 0.7578568402566046,
+        "spearman": 0.8692953582419678
+      },
+      "JAK2": {
+        "n": 372,
+        "mae": 0.5437418725430166,
+        "rmse": 0.7606827923703268,
+        "r2": 0.7619449615270836,
+        "spearman": 0.8838412766282142
+      },
+      "JAK3": {
+        "n": 115,
+        "mae": 0.7423764470933141,
+        "rmse": 0.9474460871638183,
+        "r2": 0.3999308769742168,
+        "spearman": 0.6047816348401274
+      },
+      "TYK2": {
+        "n": 145,
+        "mae": 0.761437243544142,
+        "rmse": 1.013039712332046,
+        "r2": 0.29713180486786706,
+        "spearman": 0.5583570945586055
+      }
+    },
+    "extra_trees_descriptors": {
+      "JAK1": {
+        "n": 303,
+        "mae": 0.2633416370747506,
+        "rmse": 0.43980859357096685,
+        "r2": 0.7395153637801934,
+        "spearman": 0.847094027304356
+      },
+      "JAK2": {
+        "n": 372,
+        "mae": 0.5971624941157183,
+        "rmse": 0.8514511971254315,
+        "r2": 0.7017436391455849,
+        "spearman": 0.8480214108294836
+      },
+      "JAK3": {
+        "n": 115,
+        "mae": 0.7654442865641221,
+        "rmse": 1.0320416408313897,
+        "r2": 0.28798899135633604,
+        "spearman": 0.6486035973514017
+      },
+      "TYK2": {
+        "n": 145,
+        "mae": 0.8500809876781771,
+        "rmse": 1.196858058184976,
+        "r2": 0.01891587797416172,
+        "spearman": 0.4111941801172705
+      }
+    }
+  },
+  "paired_comparison": {
+    "JAK1": {
+      "neural_minus_selected_baseline_mae": -0.013776250709373324,
+      "exploratory_ci95": [
+        -0.04204558345077306,
+        0.013559534777014378
+      ],
+      "multiplicity_adjusted": false
+    },
+    "JAK2": {
+      "neural_minus_selected_baseline_mae": -0.030820825538848916,
+      "exploratory_ci95": [
+        -0.06703967566321536,
+        0.0077008179860981706
+      ],
+      "multiplicity_adjusted": false
+    },
+    "JAK3": {
+      "neural_minus_selected_baseline_mae": -0.11519523336561573,
+      "exploratory_ci95": [
+        -0.22327634096402685,
+        -0.022598320565893778
+      ],
+      "multiplicity_adjusted": false
+    },
+    "TYK2": {
+      "neural_minus_selected_baseline_mae": -0.055846743983666486,
+      "exploratory_ci95": [
+        -0.12808261022100165,
+        0.022084213535101514
+      ],
+      "multiplicity_adjusted": false
+    }
+  },
+  "selectivity": {
+    "measured_subset": {
+      "JAK1": {
+        "n": 209,
+        "mae": 0.2689257860183716,
+        "rmse": 0.40302515029907227,
+        "r2": 0.2572977133205666,
+        "spearman": 0.7743488285372645,
+        "preference_accuracy": 0.6555023923444976,
+        "training_majority_baseline_accuracy": 0.6985645933014354,
+        "test_majority_rate_descriptive_only": 0.6985645933014354,
+        "exact_zero_truth_margins": 32
+      },
+      "JAK2": {
+        "n": 287,
+        "mae": 0.3368105888366699,
+        "rmse": 0.4830130636692047,
+        "r2": 0.4055625519380649,
+        "spearman": 0.6548579944488537,
+        "preference_accuracy": 0.7247386759581882,
+        "training_majority_baseline_accuracy": 0.5296167247386759,
+        "test_majority_rate_descriptive_only": 0.5296167247386759,
+        "exact_zero_truth_margins": 34
+      },
+      "JAK3": {
+        "n": 91,
+        "mae": 0.5829346776008606,
+        "rmse": 0.720370888710022,
+        "r2": 0.3717456891870412,
+        "spearman": 0.5715613590295578,
+        "preference_accuracy": 0.7252747252747253,
+        "training_majority_baseline_accuracy": 0.7912087912087912,
+        "test_majority_rate_descriptive_only": 0.7912087912087912,
+        "exact_zero_truth_margins": 11
+      },
+      "TYK2": {
+        "n": 103,
+        "mae": 0.6558067798614502,
+        "rmse": 0.8041737675666809,
+        "r2": 0.5993292643302666,
+        "spearman": 0.7897480859478552,
+        "preference_accuracy": 0.7961165048543689,
+        "training_majority_baseline_accuracy": 0.6019417475728155,
+        "test_majority_rate_descriptive_only": 0.6019417475728155,
+        "exact_zero_truth_margins": 16
+      }
+    },
+    "complete_panel": {
+      "JAK1": {
+        "n": 34,
+        "mae": 0.414816677570343,
+        "rmse": 0.5764739513397217,
+        "r2": 0.04340597388137579,
+        "spearman": 0.36311840383768756,
+        "preference_accuracy": 0.35294117647058826,
+        "training_majority_baseline_accuracy": 0.9117647058823529,
+        "test_majority_rate_descriptive_only": 0.9117647058823529,
+        "exact_zero_truth_margins": 24
+      },
+      "JAK2": {
+        "n": 34,
+        "mae": 0.4022718369960785,
+        "rmse": 0.546342670917511,
+        "r2": 0.1006290392509337,
+        "spearman": 0.30942848310306603,
+        "preference_accuracy": 0.8529411764705882,
+        "training_majority_baseline_accuracy": 0.8235294117647058,
+        "test_majority_rate_descriptive_only": 0.8235294117647058,
+        "exact_zero_truth_margins": 24
+      },
+      "JAK3": {
+        "n": 34,
+        "mae": 0.6230514049530029,
+        "rmse": 0.7722216248512268,
+        "r2": -0.31829152186214915,
+        "spearman": 0.6080092017925073,
+        "preference_accuracy": 0.9117647058823529,
+        "training_majority_baseline_accuracy": 0.9705882352941176,
+        "test_majority_rate_descriptive_only": 0.9705882352941176,
+        "exact_zero_truth_margins": 2
+      },
+      "TYK2": {
+        "n": 34,
+        "mae": 0.6819320917129517,
+        "rmse": 0.8202222585678101,
+        "r2": -0.3316456101004006,
+        "spearman": 0.4367987064590034,
+        "preference_accuracy": 1.0,
+        "training_majority_baseline_accuracy": 1.0,
+        "test_majority_rate_descriptive_only": 1.0,
+        "exact_zero_truth_margins": 5
+      }
+    },
+    "pairwise": {
+      "JAK1/JAK2": {
+        "n": 202,
+        "mae": 0.23616069555282593,
+        "rmse": 0.3424363136291504,
+        "r2": 0.32799904720604867,
+        "spearman": 0.7876933238154558,
+        "exact_ties": 27,
+        "direction_n_excluding_exact_ties": 175,
+        "direction_accuracy_excluding_exact_ties": 0.7314285714285714,
+        "training_majority_baseline_accuracy": 0.6457142857142857
+      },
+      "JAK1/JAK3": {
+        "n": 41,
+        "mae": 0.5927248001098633,
+        "rmse": 0.7593810558319092,
+        "r2": 0.26358604569869826,
+        "spearman": 0.5933907612708803,
+        "exact_ties": 6,
+        "direction_n_excluding_exact_ties": 35,
+        "direction_accuracy_excluding_exact_ties": 0.8857142857142857,
+        "training_majority_baseline_accuracy": 0.9142857142857143
+      },
+      "JAK1/TYK2": {
+        "n": 46,
+        "mae": 0.6724469661712646,
+        "rmse": 0.8284271955490112,
+        "r2": 0.5327275232175768,
+        "spearman": 0.6925411094690415,
+        "exact_ties": 10,
+        "direction_n_excluding_exact_ties": 36,
+        "direction_accuracy_excluding_exact_ties": 1.0,
+        "training_majority_baseline_accuracy": 0.8333333333333334
+      },
+      "JAK2/JAK3": {
+        "n": 79,
+        "mae": 0.6719570755958557,
+        "rmse": 0.8034271001815796,
+        "r2": 0.22952244435453095,
+        "spearman": 0.5185029135430862,
+        "exact_ties": 6,
+        "direction_n_excluding_exact_ties": 73,
+        "direction_accuracy_excluding_exact_ties": 0.7397260273972602,
+        "training_majority_baseline_accuracy": 0.7671232876712328
+      },
+      "JAK2/TYK2": {
+        "n": 92,
+        "mae": 0.6879092454910278,
+        "rmse": 0.8479004502296448,
+        "r2": 0.5805142679078283,
+        "spearman": 0.8012533374483671,
+        "exact_ties": 11,
+        "direction_n_excluding_exact_ties": 81,
+        "direction_accuracy_excluding_exact_ties": 0.8395061728395061,
+        "training_majority_baseline_accuracy": 0.49382716049382713
+      },
+      "JAK3/TYK2": {
+        "n": 57,
+        "mae": 0.5515062808990479,
+        "rmse": 0.7258670926094055,
+        "r2": -0.12671660384268524,
+        "spearman": 0.06894640634057929,
+        "exact_ties": 28,
+        "direction_n_excluding_exact_ties": 29,
+        "direction_accuracy_excluding_exact_ties": 0.5172413793103449,
+        "training_majority_baseline_accuracy": 0.5172413793103449
+      }
+    }
+  },
+  "runtime_seconds": 61.863
+}

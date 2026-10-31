@@ -1,0 +1,33 @@
+{
+  "predictions_sha256": "b4461d698ab009796190353a8d3f809a10284dc35446b6e00748ab0c744669a5",
+  "split_sha256": "ed6fdb6750675e401c4ddd9502fee95b8472761bc14c36c00a581fc547b59cfd",
+  "selected_baseline_by_validation": "random_forest",
+  "calibrators": {
+    "JAK1": {
+      "alpha": 0.1,
+      "q": 7.603155612945557,
+      "sigma_floor": 0.021267860755324365,
+      "n_calibration": 155
+    },
+    "JAK2": {
+      "alpha": 0.1,
+      "q": 7.492210865020752,
+      "sigma_floor": 0.03014976717531681,
+      "n_calibration": 166
+    },
+    "JAK3": {
+      "alpha": 0.1,
+      "q": 8.07270336151123,
+      "sigma_floor": 0.03899281024932861,
+      "n_calibration": 91
+    },
+    "TYK2": {
+      "alpha": 0.1,
+      "q": 7.396111965179443,
+      "sigma_floor": 0.05691133439540863,
+      "n_calibration": 65
+    }
+  },
+  "frozen_before_test_scoring": true,
+  "baseline_predictions_reused_from": "scaffold_hybrid_seed3"
+}

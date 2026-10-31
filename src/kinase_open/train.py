@@ -213,9 +213,9 @@ def train_ensemble(
 ) -> tuple[EnsemblePrediction, list[MolecularNetwork], Standardizer]:
     """Train `n_members` independently and return their mean and spread.
 
-    Members differ only in initialization and batch order. That is enough for a
-    useful *relative* spread; it is not enough for a calibrated absolute one,
-    which is what `conformal.py` is for.
+    Members differ only in initialization and batch order. Their spread reports
+    disagreement, not a validated error estimate. `conformal.py` calibrates
+    residual-based widths; coverage under scaffold shift still needs evaluation.
     """
     standardizer = Standardizer.fit(data.y[train_idx], data.mask[train_idx])
 

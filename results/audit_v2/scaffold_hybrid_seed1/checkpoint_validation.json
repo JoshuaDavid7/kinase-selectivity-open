@@ -1,0 +1,12 @@
+{
+  "n_compounds": 16,
+  "max_abs_mean_error": 9.5367431640625e-07,
+  "max_abs_std_error": 5.662441253662109e-07,
+  "tolerance": 1e-05,
+  "passed": true,
+  "checkpoints_sha256": {
+    "member_0.pt": "f33825ff6df14888fa9c7924ebf8bfe1ce662389a0c6430dcad403231e3f57e1",
+    "member_1.pt": "dfcd5b214768d04e655b5215c8b28f30f29c9c42b20e29395b2a939556d763a9",
+    "member_2.pt": "ebfffa695e1d43636d99c74af0a28271c0a976da12597d89a98bb1c237e6b702"
+  }
+}

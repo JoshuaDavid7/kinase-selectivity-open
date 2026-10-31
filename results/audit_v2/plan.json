@@ -1,0 +1,23 @@
+{
+  "protocol": "audit_v2",
+  "split": "fixed scaffold partition",
+  "interpretation": "initialization/batch-order replication, not new chemical splits",
+  "test_already_seen_in_legacy_study": true,
+  "settings_fixed_before_corrected_runs": true,
+  "config": {
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "kinds": [
+      "hybrid",
+      "fp",
+      "graph"
+    ],
+    "members": 3,
+    "epochs": 40,
+    "threads": 1,
+    "out": "/Users/joshuadavid/Documents/Codex/2026-10-30/josh-i-was-thinking-and-wondered/work/kinase-audit/results/audit_v2"
+  }
+}

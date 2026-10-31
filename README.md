@@ -14,19 +14,27 @@ classical methods, or that this is a new molecular architecture.
 ## Reproduce
 
 Tested on Python 3.11, CPU PyTorch 2.2.2 and NumPy 1.26.4.
+Verify the released results without retraining:
 
 ```bash
 uv venv --python 3.11
 uv pip install -e '.[dev]'
 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 python -m pytest -q
-python scripts/replicate.py --seeds 1 2 3 --members 3 --epochs 40
 python scripts/audit_sources.py
 python scripts/verify_results.py
-python scripts/render_results.py
+python scripts/render_results.py --check
 ```
 
-Existing runs are never overwritten. Use `--out results/my-study` for a new
-replication. Exact tested package versions are recorded in every run's provenance.
+From a Git checkout, run a new study in a new output directory:
+
+```bash
+python scripts/replicate.py --seeds 1 2 3 --members 3 --epochs 40 --out results/reproduction
+python scripts/archive_sources.py --study results/reproduction
+python scripts/verify_results.py --study results/reproduction
+python scripts/render_results.py --study results/reproduction
+```
+
+Existing runs are never overwritten. Exact tested package versions are recorded in every run's provenance.
 The committed curated CSV defines this benchmark; a live ChEMBL rebuild is not
 expected to be identical. Data attribution and hashes are in [data/](data/README.md).
 
@@ -54,6 +62,11 @@ expected to be identical. Data attribution and hashes are in [data/](data/README
 The corrected study reuses a test partition already seen in the original work.
 It is retrospective validation of corrections, not a new independently blinded test.
 See [the generated report](results/audit_v2/REPORT.md) for every declared run.
+
+The fingerprint network has the lowest average error in this configuration;
+adding the graph branch does not improve the average. The descriptor-augmented
+random forest is close. These are descriptive results on one previously observed
+chemical partition, not evidence of a general neural advantage.
 
 ## Reload a trained ensemble
 
@@ -93,3 +106,9 @@ source partitions reserved before model selection. See [the research plan](docs/
 ## License
 
 Code: MIT. Derived ChEMBL data: CC BY-SA 3.0, attributed separately in `data/README.md`.
+
+## References
+
+- [Yang et al., Analyzing Learned Molecular Representations for Property Prediction](https://arxiv.org/abs/1904.01561): directed message passing.
+- [Angelopoulos and Bates, A Gentle Introduction to Conformal Prediction](https://arxiv.org/abs/2107.07511): uncertainty construction and its assumptions.
+- [ChEMBL assay/activity documentation](https://chembl.gitbook.io/chembl-interface-documentation/frequently-asked-questions/chembl-data-questions): source definitions and target-assignment confidence.

@@ -1,8 +1,8 @@
 """Split conformal prediction, with a floor on the ensemble spread.
 
-A deep ensemble's standard deviation is a *relative* confidence signal, not a
-calibrated one: it tells you which predictions are shakier, but its absolute
-width has no coverage guarantee and in practice is far too narrow. Split
+A deep ensemble's standard deviation measures member disagreement. Whether it
+tracks prediction error is an empirical question; its absolute width has no
+automatic coverage guarantee. Split
 conformal fixes the absolute width using a held-out calibration set, and makes
 one distribution-free promise: on exchangeable data the interval covers the
 truth at least `1 - alpha` of the time.
