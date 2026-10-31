@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import numpy as np
 from benchmark import ROOT, TARGETS
+from kinase_open.model import MolecularNetwork
 
 def report(study):
     plan = json.loads((study / "plan.json").read_text())
@@ -26,7 +27,10 @@ def report(study):
     baseline_names = runs[reference,seeds[0]]["baselines"].keys()
     for name in baseline_names:
         lines.append(f"| {name} | {mean_sd([macro(runs[reference,s]['baselines'][name]) for s in seeds])} |")
-    lines += ["", "All classical configurations are reported; choosing the smallest test error from this table is not an unbiased model-selection procedure.", "",
+    sizes = ", ".join(f"{kind}: {MolecularNetwork(kind=kind).n_parameters():,}" for kind in kinds)
+    lines += ["", f"Trainable parameters per ensemble member: {sizes}. Three members are averaged per run.", "",
+        "All classical configurations are reported; choosing the smallest test error from this table is not an unbiased model-selection procedure.",
+        "Classical predictions are reused across architectures within a seed after input/hash checks. Run seconds include different amounts of reused work and are not a compute-efficiency comparison.", "",
         "## Declared runs", "", "| Seed | Architecture | Macro-MAE | Validation-selected comparator | Comparator macro-MAE | Seconds |", "|---|---|---:|---|---:|---:|"]
     for seed in seeds:
         for kind in kinds:

@@ -1,0 +1,24 @@
+name: Tests and saved-result verification
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install '.[dev]'
+      - run: python -m pytest -q
+      - run: python scripts/verify_results.py
+      - run: python scripts/render_results.py --check

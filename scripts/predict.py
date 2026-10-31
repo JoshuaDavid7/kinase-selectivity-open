@@ -5,6 +5,7 @@ from pathlib import Path
 import torch
 from benchmark import ROOT, TARGETS, conformal, write_json
 from kinase_open.inference import predict_from_checkpoints
+from kinase_open.splits import nearest_train_similarity
 
 def main():
     parser = argparse.ArgumentParser()
@@ -15,9 +16,12 @@ def main():
     torch.set_num_threads(1)
     mu, sigma = predict_from_checkpoints(args.run / "models", args.smiles)
     frozen = json.loads((args.run / "frozen.json").read_text())
+    split = json.loads((args.run / "split.json").read_text())
+    train_smiles = [split["smiles"][i] for i in split["indices"]["train"]]
+    similarities = nearest_train_similarity(train_smiles, args.smiles)
     rows = []
     for i, smi in enumerate(args.smiles):
-        entry = {"smiles": smi, "targets": {}}
+        entry = {"smiles": smi, "max_training_morgan_tanimoto": float(similarities[i]), "targets": {}}
         for t, name in enumerate(TARGETS):
             result = {"predicted_pKi": float(mu[i,t]), "ensemble_std": float(sigma[i,t])}
             if name in frozen["calibrators"]:
@@ -32,6 +36,7 @@ def main():
     write_json(args.out, {"predictions": rows,
         "scope": "retrospective ligand-based affinity model; no prospective or whole-kinome validation",
         "interval_caveat": "empirical calibration, no automatic coverage guarantee on new chemistry",
+        "similarity_caveat": "fingerprint similarity describes proximity to training data; it is not a reliability guarantee",
         "null_interval_endpoint_means_unbounded": True})
     print(f"wrote {args.out}")
 

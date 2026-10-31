@@ -1,15 +1,15 @@
 [project]
 name = "kinase-open"
-version = "0.1.0"
-description = "JAK-family selectivity prediction from public ChEMBL data, with calibrated uncertainty"
-requires-python = ">=3.11"
+version = "0.2.0"
+description = "JAK-family affinity benchmark with audited selectivity and uncertainty evaluation"
+requires-python = ">=3.11,<3.12"
 dependencies = [
-    "numpy<2",
+    "numpy==1.26.4",
     "torch==2.2.2",
-    "rdkit",
-    "pandas",
-    "scikit-learn",
-    "scipy",
+    "rdkit==2025.9.3",
+    "pandas==3.0.6",
+    "scikit-learn==1.9.1",
+    "scipy==1.17.1",
     "requests",
 ]
 
