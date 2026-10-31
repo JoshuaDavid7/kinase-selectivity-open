@@ -228,3 +228,35 @@ def train_ensemble(
         models,
         standardizer,
     )
+
+
+def train_ensemble_multi(
+    data: Featurized,
+    train_idx: np.ndarray,
+    val_idx: np.ndarray,
+    predict_sets: list[np.ndarray],
+    n_members: int = 5,
+    base_seed: int = 0,
+    **kwargs,
+) -> list[EnsemblePrediction]:
+    """Train one ensemble and predict several index sets with it.
+
+    Calibration and test predictions must come from the *same* fitted members.
+    Training a second ensemble for the second set - even with identical seeds -
+    couples the conformal quantile to a separate training run, and any drift
+    between them shows up as an unstable interval width rather than as an
+    obviously wrong number.
+    """
+    standardizer = Standardizer.fit(data.y[train_idx], data.mask[train_idx])
+
+    per_set: list[list[np.ndarray]] = [[] for _ in predict_sets]
+    for i in range(n_members):
+        model = train_one(data, train_idx, val_idx, standardizer, seed=base_seed + i, **kwargs)
+        for s, idx in enumerate(predict_sets):
+            per_set[s].append(standardizer.decode(predict(model, data, idx)))
+
+    out = []
+    for preds in per_set:
+        stack = np.stack(preds)
+        out.append(EnsemblePrediction(mu=stack.mean(axis=0), sigma=stack.std(axis=0), members=preds))
+    return out

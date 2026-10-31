@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from kinase_open import conformal, evaluate  # noqa: E402
 from kinase_open.evaluate import TARGETS  # noqa: E402
 from kinase_open.splits import murcko_scaffold, random_split, scaffold_split  # noqa: E402
-from kinase_open.train import featurize_frame, train_ensemble  # noqa: E402
+from kinase_open.train import featurize_frame, train_ensemble_multi  # noqa: E402
 
 
 def four_way(smiles: list[str], design: str, seed: int):
@@ -65,11 +65,19 @@ def main() -> None:
     data = featurize_frame(df)
     train, val, cal, test = four_way(data.smiles, args.split, args.seed)
 
-    pred_cal, _, _ = train_ensemble(
-        data, train, val, cal, n_members=args.members, base_seed=args.seed * 100, epochs=args.epochs, kind=args.kind
-    )
-    pred_test, _, _ = train_ensemble(
-        data, train, val, test, n_members=args.members, base_seed=args.seed * 100, epochs=args.epochs, kind=args.kind
+    # One ensemble, predicting both sets. Training twice with the same seed to
+    # get calibration and test predictions separately is not just wasteful: it
+    # makes the two sets depend on separate training runs, so any drift between
+    # them lands straight in the conformal quantile.
+    pred_cal, pred_test = train_ensemble_multi(
+        data,
+        train,
+        val,
+        [cal, test],
+        n_members=args.members,
+        base_seed=args.seed * 100,
+        epochs=args.epochs,
+        kind=args.kind,
     )
 
     y_cal, y_test = data.y[cal], data.y[test]
@@ -116,10 +124,40 @@ def main() -> None:
         }
 
     baselines = evaluate.classical_baselines(data.fps[train], data.y[train], data.fps[test], seed=args.seed)
-    results["baselines"] = {
-        name: {t: evaluate.regression_metrics(y_test[:, i], pred[:, i]).to_dict() for i, t in enumerate(TARGETS)}
-        for name, pred in baselines.items()
-    }
+    results["baselines"] = {}
+    for name, pred in baselines.items():
+        entry = {}
+        for i, t in enumerate(TARGETS):
+            metrics = evaluate.regression_metrics(y_test[:, i], pred[:, i])
+            # Baselines get the same scaffold-group bootstrap as the ensemble, so
+            # "the neural model won" can be checked against overlapping intervals
+            # rather than asserted from two point estimates.
+            _, lo, hi = evaluate.scaffold_bootstrap_ci(y_test[:, i], pred[:, i], test_groups)
+            entry[t] = metrics.to_dict() | {"mae_ci95": [lo, hi]}
+        results["baselines"][name] = entry
+
+    # State the comparison explicitly rather than leaving it to the reader.
+    results["ensemble_vs_best_baseline"] = {}
+    for i, t in enumerate(TARGETS):
+        ens = results["per_target"][t]
+        ranked = sorted(
+            ((n, e[t]["mae"], e[t]["mae_ci95"]) for n, e in results["baselines"].items()),
+            key=lambda row: (float("inf") if row[1] != row[1] else row[1]),
+        )
+        if not ranked:
+            continue
+        name, mae, ci = ranked[0]
+        results["ensemble_vs_best_baseline"][t] = {
+            "ensemble_mae": ens["mae"],
+            "ensemble_ci95": ens["mae_ci95"],
+            "best_baseline": name,
+            "best_baseline_mae": mae,
+            "best_baseline_ci95": ci,
+            # "separated" only when the baseline's point estimate sits outside the
+            # ensemble's interval; anything else is a tie at this sample size.
+            "separated": bool(mae < ens["mae_ci95"][0] or mae > ens["mae_ci95"][1]),
+            "ensemble_better": bool(ens["mae"] < mae),
+        }
 
     results["runtime_seconds"] = round(time.time() - started, 1)
 

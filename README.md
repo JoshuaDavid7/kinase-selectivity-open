@@ -98,10 +98,74 @@ majority class would be right, so both are printed together.
 
 ## Results
 
-See [`results/`](results/). `run_experiment.py` writes one JSON per split design and seed,
-covering per-target regression metrics with scaffold-group bootstrap intervals, raw-versus-
-conformal coverage at a nominal 90%, selectivity margins against the majority rate, and seven
-classical baselines fitted per target.
+Scaffold split, hybrid model, 5-member ensemble, seed 1. Train 2,534 / val 272 /
+calibration 271 / test 544. Full output in [`results/`](results/), and
+`scripts/check_readme.py` re-reads every figure below against that JSON.
+
+### Accuracy, and the baseline that matters
+
+| Target | Test n | MAE (95% CI) | R² | Spearman ρ |
+|---|---|---|---|---|
+| JAK1 | 303 | 0.275 (0.242–0.312) | 0.779 | 0.826 |
+| JAK2 | 372 | 0.620 (0.557–0.681) | 0.689 | 0.844 |
+| JAK3 | 115 | 0.792 (0.676–0.923) | 0.289 | 0.527 |
+| TYK2 | 145 | 0.745 (0.651–0.844) | 0.351 | 0.607 |
+
+**The graph network does not beat a random forest on Morgan fingerprints.** Best baseline per target:
+
+| Target | Deep ensemble | Best baseline | |
+|---|---|---|---|
+| JAK1 | 0.275 | 0.248 random forest | inside the ensemble's CI — a tie |
+| JAK2 | 0.620 | 0.540 knn 5 distance | **below the CI — the baseline genuinely wins** |
+| JAK3 | 0.792 | 0.742 random forest | inside the ensemble's CI — a tie |
+| TYK2 | 0.745 | 0.761 random forest | inside the ensemble's CI — a tie |
+
+At roughly 2,500 training compounds a message-passing network has no data advantage over a
+well-tuned tree ensemble on fingerprints, and this run says so. On three targets the two are
+statistically indistinguishable once the interval resamples scaffold groups; on JAK2 the k-NN
+baseline is outright better. What the neural model adds is the multitask structure and a shared
+representation for the uncertainty work below — not raw accuracy. Anyone reporting a GNN win at
+this scale without a tuned baseline beside it has probably not run one.
+
+### Uncertainty: the ensemble spread is not a confidence interval
+
+At a nominal 90%:
+
+| Target | Raw ensemble coverage | Width | Conformal coverage | Width |
+|---|---|---|---|---|
+| JAK1 | **39.3%** | 0.40 | 96.0% | 1.82 |
+| JAK2 | **27.4%** | 0.48 | 84.4% | 2.28 |
+| JAK3 | **26.1%** | 0.84 | 81.7% | 3.54 |
+| TYK2 | **20.0%** | 0.61 | 90.3% | 3.99 |
+
+Treating the ensemble's standard deviation as a Gaussian σ and reading off *z* produces intervals
+that contain the truth **20–39% of the time while claiming 90%**. They are not slightly
+optimistic; they are wrong by a factor of three, and narrow enough to look authoritative while
+doing it. Conformal calibration costs a three-to-fivefold increase in width and buys coverage
+approximately equal to the number on the label.
+
+**Approximately, not exactly, and the gap is informative.** Conformal's guarantee holds under
+exchangeability, and a scaffold split deliberately violates it — calibration and test are
+*different chemistry* by construction. JAK2 at 84.4% and JAK3 at 81.7% under-cover for
+that reason. The honest reading is that conformal turns a threefold error into a few points of
+slack, not that it restores the guarantee under distribution shift. Nothing does.
+
+### Selectivity: real skill on two targets, none on two
+
+A one-versus-rest margin is `pKi(target) − max(others)`. Sign accuracy only means something next
+to the majority rate — the score a model gets by always naming the more common winner:
+
+| Target | Margin n | Margin MAE | Preference accuracy | Majority rate | Gain |
+|---|---|---|---|---|---|
+| JAK1 | 209 | 0.275 | 67.0% | 69.9% | **-2.9 pts** |
+| JAK2 | 287 | 0.359 | 76.0% | 53.0% | **+23.0 pts** |
+| JAK3 | 91 | 0.617 | 78.0% | 79.1% | **-1.1 pts** |
+| TYK2 | 103 | 0.703 | 88.3% | 60.2% | **+28.2 pts** |
+
+JAK2 and TYK2 show genuine selectivity skill, more than twenty points above the majority rate.
+JAK1 and JAK3 show **none** — the model is a point or two *worse* than a constant answer, so its
+78.0% on JAK3 is not a result, it is the base rate wearing a model's clothes. Reporting that
+figure without the 79.1% beside it would be the easiest way to oversell this work.
 
 ## What this does not do
 

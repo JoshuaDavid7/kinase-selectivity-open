@@ -221,3 +221,85 @@ class TestStandardizer:
         y = np.full((4, 1), 3.0, dtype=np.float32)
         std = Standardizer.fit(y, np.ones_like(y))
         assert np.isfinite(std.encode(y)).all()
+
+
+class TestReproducibility:
+    """The bug these guard against moved interval width by up to 98% while every
+    accuracy number stayed bit-identical, so it was invisible to any check that
+    only looked at MAE.
+
+    Mechanism, for whoever hits this next: two separately trained ensembles
+    drift by about 5e-7 over a long fit (ordinary float accumulation, not a
+    seeding mistake). The conformal quantile is an order statistic taken with
+    `method="higher"`, so a perturbation that small can select the adjacent
+    calibration point - and on a heavy-tailed score ratio the neighbour is not
+    a neighbouring *value*. The amplification is inherent to conformal and is
+    where its guarantee comes from; the fix is to stop feeding it two separate
+    training runs, not to smooth the quantile.
+    """
+
+    def _tiny(self):
+        import pandas as pd
+
+        from kinase_open.train import featurize_frame
+
+        rows = []
+        for i, smi in enumerate(SMILES * 8):
+            rows.append(
+                {
+                    "canonical_smiles": smi,
+                    "JAK1": 6.0 + (i % 5) * 0.3,
+                    "JAK2": 7.0 - (i % 4) * 0.2,
+                    "JAK3": np.nan if i % 3 else 5.5,
+                    "TYK2": np.nan if i % 2 else 8.0,
+                }
+            )
+        return featurize_frame(pd.DataFrame(rows))
+
+    def test_one_ensemble_gives_identical_calibration_and_test_predictions(self):
+        """Predicting the same indices twice from one ensemble agrees bit for bit.
+
+        This guards the invariant rather than reproducing the original failure:
+        two *separately trained* ensembles agree at a few epochs and only drift
+        apart (~5e-7) over a long run, so reproducing it here would need an
+        80-epoch fit. What it does catch is a refactor that goes back to
+        training a second ensemble for the calibration set.
+        """
+        from kinase_open.train import train_ensemble_multi
+
+        data = self._tiny()
+        idx = np.arange(len(data))
+        train, val, hold = idx[:32], idx[32:40], idx[40:]
+
+        first = train_ensemble_multi(data, train, val, [hold, hold], n_members=2, epochs=3, base_seed=5)
+        # The same index set passed twice must come back identical, which only
+        # holds if both were predicted by the same fitted members.
+        assert np.array_equal(first[0].mu, first[1].mu)
+        assert np.array_equal(first[0].sigma, first[1].sigma)
+
+    def test_repeated_runs_agree(self):
+        from kinase_open.train import train_ensemble_multi
+
+        data = self._tiny()
+        idx = np.arange(len(data))
+        train, val, hold = idx[:32], idx[32:40], idx[40:]
+
+        a = train_ensemble_multi(data, train, val, [hold], n_members=2, epochs=3, base_seed=5)[0]
+        b = train_ensemble_multi(data, train, val, [hold], n_members=2, epochs=3, base_seed=5)[0]
+        assert np.array_equal(a.mu, b.mu)
+        assert np.array_equal(a.sigma, b.sigma)
+
+    def test_sigma_floor_survives_clustered_spread(self):
+        """A percentile floor over near-identical sigmas must stay finite.
+
+        This is the amplifier: when sigma clusters, a 1e-7 shift moves which
+        value the percentile lands on, and that moves q and every width.
+        """
+        rng = np.random.default_rng(0)
+        sigma = np.full(500, 0.25) + rng.normal(0, 1e-9, 500)
+        mu = np.zeros(500)
+        y = rng.normal(0, 0.4, 500)
+        calib = conformal.fit(y, mu, sigma, alpha=0.1)
+        assert np.isfinite(calib.q) and calib.sigma_floor > 0
+        lo, hi = calib.interval(mu, sigma)
+        assert np.isfinite(hi - lo).all()
